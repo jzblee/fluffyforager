@@ -12,6 +12,6 @@ The program accepts a single long and lists the prime factors along with their
 multiplicities.
 
 Try these numbers:
-* 36
-* 210
-* 4352364623462346 (it works!)
+*   36
+*   210
+*   4352364623462346 (it works!)
