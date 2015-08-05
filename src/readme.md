@@ -15,7 +15,3 @@ Try these numbers:
 * 36
 * 210
 * 4352364623462346 (it works!)
-
-### More Information ###
-
-http://tempora.mutantur.net/tagged/fluffynumbers
