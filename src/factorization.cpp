@@ -1,27 +1,10 @@
-#include <array>
-#include <cmath>
-#include <iostream>
-#include <vector>
-using namespace std;
+#include "factorization.h"
 
-long smallest_factor(long operand);
-vector<array<long, 2> > prime_factorize(long factor_this);
-vector<long> deduce_divisors(long operand_dd);
-
-int main() {
-  long to_p_factor;
-  cin >> to_p_factor;
-  vector<array<long, 2> > p_factors = prime_factorize(to_p_factor);
-  for (int i = 0; i < p_factors.size(); i++) {
-    cout << p_factors[i][0] << ", " << p_factors[i][1] << endl;
-  }
-}
-
-vector<array<long, 2> > prime_factorize(long factor_this) {
+vector<array<long, 2> > factorization::prime_factorize(long factor_this) {
   long original = factor_this;
   vector<array<long, 2> > p_factors;
   long s_factor;
-  while ((s_factor = smallest_factor(factor_this)) != 1) {
+  while ((s_factor = factorization::smallest_factor(factor_this)) != 1) {
     if (p_factors.size() > 0 &&
         p_factors[p_factors.size() - 1][0] == s_factor) {
       p_factors[p_factors.size() - 1][1]++;
@@ -37,7 +20,7 @@ vector<array<long, 2> > prime_factorize(long factor_this) {
   return p_factors;
 }
 
-long smallest_factor(long operand) {
+long factorization::smallest_factor(long operand) {
   if (operand < 2) {
     return operand;
   }
@@ -56,4 +39,40 @@ long smallest_factor(long operand) {
     if (!(operand % j + 24)) return j + 24;
   }
   return operand;
+}
+
+vector<long> factorization::deduce_divisors(long operand) {
+  vector<long> divisors;
+  vector<array<long, 2> > p_factors = factorization::prime_factorize(operand);
+  vector<long> prime_factors;
+  vector<int> multiplicities, counter_state;
+  for (int i = 0; i < p_factors.size(); i++) {
+    prime_factors.push_back(p_factors[i][0]);
+    multiplicities.push_back(p_factors[i][1]);
+    counter_state.push_back(0);
+  }
+  int carry_places_to_right = 0;
+  int current_index = 0;
+  divisors.push_back(1);
+  while (counter_state != multiplicities) {
+    if (counter_state[current_index + carry_places_to_right] < multiplicities[current_index + carry_places_to_right]) {
+      if (carry_places_to_right > 0) {
+        for (int i = 0; i < carry_places_to_right; i++) {
+          counter_state[current_index + i] = 0;
+        }
+      }
+      counter_state[current_index + carry_places_to_right]++;
+      carry_places_to_right = 0;
+    }
+    else {
+      carry_places_to_right++;
+      continue;
+    }
+    long new_divisor = 1;
+    for (int i = 0; i < p_factors.size(); i++) {
+      new_divisor *= pow(prime_factors[i], counter_state[i]);
+    }
+    divisors.push_back(new_divisor);
+  }
+  return divisors;
 }
