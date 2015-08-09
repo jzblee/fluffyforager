@@ -74,5 +74,17 @@ vector<long> factorization::deduce_divisors(long operand) {
     }
     divisors.push_back(new_divisor);
   }
+  bool keep_sorting = true;
+  while (keep_sorting) {
+    keep_sorting = false;
+    for (int i = 0; i < divisors.size() - 1; i++) {
+      if (divisors[i] > divisors[i + 1]) {
+        long temp = divisors[i];
+        divisors[i] = divisors[i + 1];
+        divisors[i + 1] = temp;
+        keep_sorting = true;
+      }
+    }
+  }
   return divisors;
 }
