@@ -44,33 +44,41 @@ long factorization::smallest_factor(long operand) {
 vector<long> factorization::deduce_divisors(long operand) {
   vector<long> divisors;
   vector<array<long, 2> > p_factors = factorization::prime_factorize(operand);
-  vector<long> prime_factors;
   vector<int> multiplicities, counter_state;
   for (int i = 0; i < p_factors.size(); i++) {
-    prime_factors.push_back(p_factors[i][0]);
     multiplicities.push_back(p_factors[i][1]);
     counter_state.push_back(0);
   }
-  int carry_places_to_right = 0;
   int current_index = 0;
   divisors.push_back(1);
   while (counter_state != multiplicities) {
-    if (counter_state[current_index + carry_places_to_right] < multiplicities[current_index + carry_places_to_right]) {
-      if (carry_places_to_right > 0) {
-        for (int i = 0; i < carry_places_to_right; i++) {
-          counter_state[current_index + i] = 0;
+    if (counter_state[current_index]
+    < multiplicities[current_index]) {
+      /*
+      * When a digit is successfully incremented, all digits to the
+      * left of the incremented digit and the current index are set
+      * to zero.
+      */
+      if (current_index > 0) {
+        for (int i = 0; i < current_index; i++) {
+          counter_state[i] = 0;
         }
       }
-      counter_state[current_index + carry_places_to_right]++;
-      carry_places_to_right = 0;
+      counter_state[current_index]++;
+      current_index = 0;
     }
     else {
-      carry_places_to_right++;
+      current_index++;
+      /*
+      * The current index is shifted to the right by one place if
+      * the digit at the current index may not be incremented.
+      * The incrementor acts again without storing a new divisor.
+      */
       continue;
     }
     long new_divisor = 1;
     for (int i = 0; i < p_factors.size(); i++) {
-      new_divisor *= pow(prime_factors[i], counter_state[i]);
+      new_divisor *= pow(p_factors[i][0], counter_state[i]);
     }
     divisors.push_back(new_divisor);
   }
