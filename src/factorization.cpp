@@ -52,12 +52,11 @@ vector<long> factorization::deduce_divisors(long operand) {
   int current_index = 0;
   divisors.push_back(1);
   while (counter_state != multiplicities) {
-    if (counter_state[current_index]
-    < multiplicities[current_index]) {
+    if (counter_state[current_index] < multiplicities[current_index]) {
       /*
       * When a digit is successfully incremented, all digits to the
-      * left of the incremented digit and the current index are set
-      * to zero.
+      * left of the incremented digit are set to zero. The current
+      * index position is returned to the leftmost counter digit.
       */
       if (current_index > 0) {
         for (int i = 0; i < current_index; i++) {
