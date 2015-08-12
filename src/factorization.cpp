@@ -1,10 +1,10 @@
 #include "factorization.h"
 
 vector<array<long, 2> > factorization::prime_factorize(long factor_this) {
-  long original = factor_this;
   vector<array<long, 2> > p_factors;
   long s_factor;
-  while ((s_factor = factorization::smallest_factor(factor_this)) != 1) {
+  long high_score = 7;
+  while ((s_factor = factorization::smallest_factor(factor_this, high_score)) != 1) {
     if (p_factors.size() > 0 &&
         p_factors[p_factors.size() - 1][0] == s_factor) {
       p_factors[p_factors.size() - 1][1]++;
@@ -20,7 +20,7 @@ vector<array<long, 2> > factorization::prime_factorize(long factor_this) {
   return p_factors;
 }
 
-long factorization::smallest_factor(long operand) {
+long factorization::smallest_factor(long operand, long & high_score) {
   if (operand < 2) {
     return operand;
   }
@@ -28,15 +28,17 @@ long factorization::smallest_factor(long operand) {
   if (!(operand % (fac = 2)) || !(operand % (fac = 3)) || !(operand % (fac = 5))) {
     return fac;
   }
-  for (long j = 7; j < sqrt(operand); j += 30) { //could set a "high score" mechanic? so earlier ranges don't need to be revisited
-    if (!(operand % j)) return j;
-    if (!(operand % j + 4)) return j + 4;
-    if (!(operand % j + 6)) return j + 6;
-    if (!(operand % j + 10)) return j + 10;
-    if (!(operand % j + 12)) return j + 12;
-    if (!(operand % j + 16)) return j + 16;
-    if (!(operand % j + 22)) return j + 22;
-    if (!(operand % j + 24)) return j + 24;
+  while (high_score < sqrt(operand)) {
+    /* "High score" mechanic ensures that earlier ranges are not revisited */
+    if (!(operand % high_score)) return high_score;
+    if (!(operand % high_score + 4)) return high_score + 4;
+    if (!(operand % high_score + 6)) return high_score + 6;
+    if (!(operand % high_score + 10)) return high_score + 10;
+    if (!(operand % high_score + 12)) return high_score + 12;
+    if (!(operand % high_score + 16)) return high_score + 16;
+    if (!(operand % high_score + 22)) return high_score + 22;
+    if (!(operand % high_score + 24)) return high_score + 24;
+    high_score += 30;
   }
   return operand;
 }
@@ -50,7 +52,7 @@ vector<long> factorization::deduce_divisors(long operand) {
     counter_state.push_back(0);
   }
   int current_index = 0;
-  divisors.push_back(1);
+  divisors.push_back(1); // 1 is a divisor of every integer
   while (counter_state != multiplicities) {
     if (counter_state[current_index] < multiplicities[current_index]) {
       /*
