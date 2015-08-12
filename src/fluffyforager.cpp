@@ -7,7 +7,9 @@ using namespace std;
 int main() {
   long to_p_factor;
   cout << "Enter a number to get its prime factors and divisors: ";
-  while (!(cin >> to_p_factor) || to_p_factor <= 0 || to_p_factor > 9000000000000) {
+  while (!(cin >> to_p_factor) || to_p_factor <= 0 || to_p_factor > 9000000000000000) {
+    cin.clear();
+    cin.ignore(10000, '\n');
     cout << "INVALID INPUT" << endl << "Please enter a positive integer within reasonable limits: ";
   }
   cout << endl << "Prime Multiplicity Index:" << endl;
