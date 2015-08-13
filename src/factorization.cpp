@@ -31,13 +31,13 @@ long factorization::smallest_factor(long operand, long & high_score) {
   while (high_score < sqrt(operand)) {
     /* "High score" mechanic ensures that earlier ranges are not revisited */
     if (!(operand % high_score)) return high_score;
-    if (!(operand % high_score + 4)) return high_score + 4;
-    if (!(operand % high_score + 6)) return high_score + 6;
-    if (!(operand % high_score + 10)) return high_score + 10;
-    if (!(operand % high_score + 12)) return high_score + 12;
-    if (!(operand % high_score + 16)) return high_score + 16;
-    if (!(operand % high_score + 22)) return high_score + 22;
-    if (!(operand % high_score + 24)) return high_score + 24;
+    if (!(operand % (high_score + 4))) return high_score + 4;
+    if (!(operand % (high_score + 6))) return high_score + 6;
+    if (!(operand % (high_score + 10))) return high_score + 10;
+    if (!(operand % (high_score + 12))) return high_score + 12;
+    if (!(operand % (high_score + 16))) return high_score + 16;
+    if (!(operand % (high_score + 22))) return high_score + 22;
+    if (!(operand % (high_score + 24))) return high_score + 24;
     high_score += 30;
   }
   return operand;
