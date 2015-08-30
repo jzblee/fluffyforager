@@ -1,16 +1,16 @@
 #include "factorization.h"
 
-vector<array<long, 2> > factorization::prime_factorize(long factor_this) {
-  vector<array<long, 2> > p_factors;
-  long s_factor;
-  long high_score = 7;
+std::vector<std::array<unsigned long, 2> > factorization::prime_factorize(unsigned long factor_this) {
+  std::vector<std::array<unsigned long, 2> > p_factors;
+  unsigned long s_factor;
+  unsigned long high_score = 7;
   while ((s_factor = factorization::smallest_factor(factor_this, high_score)) != 1) {
     if (p_factors.size() > 0 &&
         p_factors[p_factors.size() - 1][0] == s_factor) {
       p_factors[p_factors.size() - 1][1]++;
     }
     else {
-      array<long, 2> new_array;
+      std::array<unsigned long, 2> new_array;
       new_array[0] = s_factor;
       new_array[1] = 1;
       p_factors.push_back(new_array);
@@ -22,16 +22,16 @@ vector<array<long, 2> > factorization::prime_factorize(long factor_this) {
 
 const int hs_offsets[8] = {0, 4, 6, 10, 12, 16, 22, 24}; // Sieve of Eratosthenes
 
-long factorization::smallest_factor(long operand, long & high_score) {
+unsigned long factorization::smallest_factor(unsigned long operand, unsigned long & high_score) {
   if (operand < 2) {
     return operand;
   }
   int fac;
-  if (high_score <= 7
+  if (high_score == 7
     && (!(operand % (fac = 2)) || !(operand % (fac = 3)) || !(operand % (fac = 5)))) {
     return fac;
   }
-  while (high_score < sqrt(operand)) {
+  while (high_score <= sqrt(operand)) {
     /* "High score" mechanic ensures that earlier ranges are not revisited */
     for (int i = 0; i < 8; i++) {
       if (!(operand % (high_score + hs_offsets[i]))) return high_score + hs_offsets[i];
@@ -41,10 +41,10 @@ long factorization::smallest_factor(long operand, long & high_score) {
   return operand;
 }
 
-vector<long> factorization::deduce_divisors(long operand) {
-  vector<long> divisors;
-  vector<array<long, 2> > p_factors = factorization::prime_factorize(operand);
-  vector<int> multiplicities, counter_state;
+std::vector<unsigned long> factorization::deduce_divisors(unsigned long operand) {
+  std::vector<unsigned long> divisors;
+  std::vector<std::array<unsigned long, 2> > p_factors = factorization::prime_factorize(operand);
+  std::vector<int> multiplicities, counter_state;
   for (int i = 0; i < p_factors.size(); i++) {
     multiplicities.push_back(p_factors[i][1]);
     counter_state.push_back(0);
@@ -75,7 +75,7 @@ vector<long> factorization::deduce_divisors(long operand) {
       */
       continue;
     }
-    long new_divisor = 1;
+    unsigned long new_divisor = 1;
     for (int i = 0; i < p_factors.size(); i++) {
       new_divisor *= pow(p_factors[i][0], counter_state[i]);
     }
@@ -86,7 +86,7 @@ vector<long> factorization::deduce_divisors(long operand) {
     keep_sorting = false;
     for (int i = 0; i < divisors.size() - 1; i++) {
       if (divisors[i] > divisors[i + 1]) {
-        long temp = divisors[i];
+        unsigned long temp = divisors[i];
         divisors[i] = divisors[i + 1];
         divisors[i + 1] = temp;
         keep_sorting = true;
