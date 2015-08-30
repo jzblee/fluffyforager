@@ -1,12 +1,11 @@
 #include <array>
 #include <cmath>
 #include <vector>
-using namespace std;
 
 class factorization {
 public:
-  static vector<array<long, 2> > prime_factorize(long factor_this);
-  static vector<long> deduce_divisors(long operand);
+  static std::vector<std::array<unsigned long, 2> > prime_factorize(unsigned long factor_this);
+  static std::vector<unsigned long> deduce_divisors(unsigned long operand);
 private:
-  static long smallest_factor(long operand, long & high_score);
+  static unsigned long smallest_factor(unsigned long operand, unsigned long & high_score);
 };
