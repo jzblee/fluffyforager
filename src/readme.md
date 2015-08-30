@@ -6,7 +6,7 @@ Launch the program in a terminal or command prompt and follow the onscreen instr
 
 ### factorization.cpp ###
 
-This file contains the factorization module for the Fluffy Forager program. It finds the prime factors of a number and uses it to generate a list of all of its divisors.
+This file contains the factorization module for the Fluffy Forager program. It finds the prime factors of a number and uses them to generate a list of all of its divisors.
 
 ### NOTE ###
 
