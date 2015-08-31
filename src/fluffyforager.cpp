@@ -26,7 +26,8 @@ int main(int argc, char* argv[]) {
   std::string searching_for;
   std::cout << "The Fluffy Forager, v5" << std::endl << std::endl; // v1 - v4 written in Java
   std::cout << "Welcome! Please set the options for your search." << std::endl;
-  std::cout << "Press enter to use the default value (in parantheses)." << std::endl << std::endl;
+  std::cout << "Press enter to use the default value (in parantheses)." << std::endl;
+  std::cout << std::endl;
 
   while (true) {
     std::cout << "Enter lower limit (0): ";
@@ -99,12 +100,14 @@ int main(int argc, char* argv[]) {
     }
     else {
       if (lower_limit > highest_possible) {
-        std::cout << ">> Bound invalid - all possible outputs are outside limits." << std::endl;
+        std::cout << ">> Bound invalid - all possible outputs are outside limits."
+            << std::endl;
         continue;
       }
       if (upper_limit > highest_possible) {
         upper_limit = highest_possible;
-        std::cout << "Setting upper limit to highest possible value (" << upper_limit << ")." << std::endl;
+        std::cout << "Setting upper limit to highest possible value ("
+            << upper_limit << ")." << std::endl;
         break;
       }
       break;
@@ -176,13 +179,14 @@ int main(int argc, char* argv[]) {
   else {
     std::cout << "**PLEASE WAIT - SEARCH IN PROGRESS**" << std::endl;
   }
-  file << std::endl << "      #|  dvs|     a|     b|     c|   sum|" << std::endl << std::endl << std::flush;
+  file << std::endl << "      #|  dvs|     a|     b|     c|   sum|"
+      << std::endl << std::endl << std::flush;
+
+  clock_t start = clock ();
 
   bool mark = false;
 
   std::vector< triple> * test;
-
-//std::cout << setfill(' ') << setw(7) << 5;
 
   for (unsigned long i = lower_limit; i <= upper_limit; i++) {
     test = check(i);
@@ -196,7 +200,9 @@ int main(int argc, char* argv[]) {
         else {
           file << "             ";
         }
-        file << std::setfill(' ') << std::setw(7) << (*test)[j].a << std::setw(7) << (*test)[j].b << std::setw(7) << (*test)[j].c << std::flush; // prints triple elements
+        file << std::setfill(' ') << std::setw(7) << (*test)[j].a
+            << std::setw(7) << (*test)[j].b << std::setw(7)
+            << (*test)[j].c << std::flush; // prints triple elements
         if (j == 0) {
           file << std::setfill(' ') << std::setw(7) << (*test)[j].sum; // prints sum
         }
@@ -218,8 +224,9 @@ int main(int argc, char* argv[]) {
   if (show_progress_bar) {
     std::cout << "!";
   }
-  double elapsed_time = 0;
-  std::cout << std::endl << "Search completed in " << std::to_string(elapsed_time) << " seconds. "
+  clock_t elapsed_time = ( clock() - start ) / CLOCKS_PER_SEC;
+  std::cout << std::endl << "Search completed in "
+      << std::to_string(elapsed_time) << " seconds. "
       << std::to_string(count) << " " << searching_for << " found." << std::endl
       << "Results have been saved to output.txt. "
       << "If you are using Terminal," << std::endl
@@ -267,8 +274,10 @@ std::vector< triple> * check(unsigned long fluffy_number) {
   flag = false;
   for (int i = 0; i < matches->size(); i++) {
     for (int j = 0; j < matches->size(); j++) {
-      if ((((*matches)[i].a != (*matches)[j].a) && (*matches)[i].b != (*matches)[j].b)
-          && (((*matches)[i].sum == (*matches)[j].sum)) && (i != j)) {
+      if ((i != j)
+          && (((*matches)[i].sum == (*matches)[j].sum)
+              && ((*matches)[i].a != (*matches)[j].a)
+              && (*matches)[i].b != (*matches)[j].b)) {
         valid_matches -> push_back((*matches)[i]);
         flag = true;
       }
