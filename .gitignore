@@ -1,0 +1,8 @@
+# OS X...
+.DS_Store
+
+# Ignore debugging information
+fluffyforager.dSYM
+
+# Ignore compiled program
+fluffyforager
