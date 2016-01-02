@@ -4,7 +4,7 @@
 
 This repository contains a program which searches for valid inputs to the Ages of Three Children problem (these integers are arbitrarily known as Fluffy numbers).
 
-The original Java program is being rewritten in C++.
+This program was ported from Java.
 
 ### Usage ###
 
@@ -16,8 +16,8 @@ This file contains the factorization module for the Fluffy Forager program. It f
 
 ### NOTE ###
 
-This program is still really slow. I am working on optimizing it so that its speed is on par with v4 (in Java) or better.
+This program is still slower than the Java version.
 
 ### More Information ###
 
-http://tempora.mutantur.net/tagged/fluffynumbers
+http://blog.jzblee.com/tagged/fluffynumbers
