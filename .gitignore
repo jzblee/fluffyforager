@@ -1,8 +1,11 @@
 # OS X...
 .DS_Store
 
-# Ignore debugging information
+# Ignore debugging files
 fluffyforager.dSYM
 
 # Ignore compiled program
 fluffyforager
+
+# Ignore output files
+*.txt

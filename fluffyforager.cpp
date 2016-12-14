@@ -16,155 +16,82 @@ std::vector< triple> * check(unsigned long fluffy_number);
 
 int count = 0, num_divisors = 0;
 unsigned long gamma_bound = 0;
-bool pure_only;
+bool pure_only = false;
 
 int main(int argc, char* argv[]) {
   std::string file_string = "output.txt";
 
-  unsigned long lower_limit, upper_limit;
+  unsigned long lower_limit = 0, upper_limit = 0;
   bool show_progress_bar = false;
-  std::string searching_for;
-  std::cout << "The Fluffy Forager, v5" << std::endl << std::endl; // v1 - v4 written in Java
-  std::cout << "Welcome! Please set the options for your search." << std::endl;
-  std::cout << "Press enter to use the default value (in parantheses)." << std::endl;
-  std::cout << std::endl;
 
-  while (true) {
-    std::cout << "Enter lower limit (0): ";
-    std::string lower_limit_temp;
-    std::getline(std::cin, lower_limit_temp);
-    if (lower_limit_temp.empty()) {
-      lower_limit = 0;
-      break;
-    }
-    else try {
-      lower_limit = stol(lower_limit_temp);
-    }
-    catch (std::invalid_argument) {
-      std::cout << ">> Invalid input - try again." << std::endl;
-      continue;
-    }
-    if (lower_limit > 4294967295) { // (2 * 2^31 - 1)
-      std::cout << ">> Number too high - try again." << std::endl;
-    }
-    else {
-      break;
-    }
+  std::string usage = "usage:\t" + std::string(argv[0]) + " [-p] [-g <bound>] lower-limit upper-limit\n"
+  "\tsearch for pairs of triples of the form (a,a,b), (x,y,z)\n"
+  "\twhere:\ta + a + b = x + y + z\n"
+  "\t\ta + a + b and x + y + z are within the lower and upper limits\n"
+  "\tp: only search for pure triple pairs, where y = z \n"
+  "\tg: only search for triple pairs where a + a + b = x + y + z <= bound\n";
+
+  if (argc == 1) {
+    std::cout << usage;
+    return 0;
   }
 
-  while (true) {
-    std::cout << "Enter upper limit (1000000): ";
-    std::string upper_limit_temp;
-    std::getline(std::cin, upper_limit_temp);
-    if (upper_limit_temp.empty() && lower_limit < 1000000) {
-      upper_limit = 1000000;
-      break;
-    }
-    else try {
-      upper_limit = stol(upper_limit_temp);
-    }
-    catch (std::invalid_argument) {
-      std::cout << ">> Invalid input - try again." << std::endl;
-      continue;
-    }
-    if (upper_limit < lower_limit) {
-      std::cout << ">> Number too low - try again." << std::endl;
-      continue;
-    }
-    else if (upper_limit > 4294967295) { // (2 * 2^31 - 1)
-      std::cout << ">> Number too high - try again." << std::endl;
-    }
-    else {
-      break;
-    }
-  }
-
-  while (true) {
-    std::cout << "Enter gamma bound - 0 to disable (0): ";
-    std::string gamma_bound_temp;
-    std::getline(std::cin, gamma_bound_temp);
-    if (gamma_bound_temp.empty() || gamma_bound_temp == "0") {
-      gamma_bound = 0;
-      break;
-    }
-    else try {
-      gamma_bound = stol(gamma_bound_temp);
-    }
-    catch (std::invalid_argument) {
-      std::cout << ">> Invalid input - try again." << std::endl;
-      continue;
-    }
-    unsigned long highest_possible = (unsigned long)(pow(gamma_bound, 3));
-    if (gamma_bound > 1625) { // (2* 2^31 - 1)^(1/3)
-      std::cout << ">> Number too high - try again." << std::endl;
-    }
-    else {
-      if (lower_limit > highest_possible) {
-        std::cout << ">> Bound invalid - all possible outputs are outside limits."
-            << std::endl;
-        continue;
-      }
-      if (upper_limit > highest_possible) {
-        upper_limit = highest_possible;
-        std::cout << "Setting upper limit to highest possible value ("
-            << upper_limit << ")." << std::endl;
-        break;
-      }
-      break;
-    }
-  }
-
-  while (true) {
-    std::cout << "Search for pure fluffy numbers only? y/n (n): ";
-    std::string pure_only_temp;
-    std::getline(std::cin, pure_only_temp);
-    if (pure_only_temp.empty() || pure_only_temp == "n") {
-      pure_only = false;
-      break;
-    }
-    else if (pure_only_temp == "y") {
+  int c;
+  while ((c = getopt(argc, argv, "pg:")) != -1) {
+    switch (c) {
+      case 'p':
       pure_only = true;
       break;
+      case 'g':
+      if (atoi(optarg)) {
+        gamma_bound = atoi(optarg);
+      }
+      else {
+        std::cout << argv[0] << ": invalid gamma bound" << std::endl;
+        std::cout << usage;
+        return -1;
+      }
+      break;
+      case ':':
+      case '?':
+      std::cout << usage;
+      return -1;
+      break;
+
     }
-    else {
-      std::cout << "Invalid input - try again." << std::endl;
-      continue;
-    }
+  }
+  if (argc - optind >= 2) {
+    lower_limit = atol(argv[optind]);
+    upper_limit = atol(argv[optind + 1]);
   }
 
-  if (gamma_bound != 0) {
-    searching_for = "fluffy numbers (gamma{" + std::to_string(gamma_bound) + "})";
-  }
-  else{
-    searching_for = "fluffy numbers (all)";
-  }
+  std::string searching_for = "fluffy numbers (";
 
-  if (pure_only && gamma_bound != 0) {
-    searching_for = "fluffy numbers (pure, gamma{" + std::to_string(gamma_bound) + "})";
+  if (lower_limit > upper_limit) {
+    std::cout << argv[0] << ": inconsistent limits" << std::endl;
+    std::cout << usage;
+    return -1;
   }
-  else if (pure_only && gamma_bound == 0) {
-    searching_for = "fluffy numbers (pure)";
+  if (pure_only) {
+    searching_for += "pure";
+    if (gamma_bound) searching_for += ", ";
   }
-  else if (!pure_only && gamma_bound != 0) {
-    searching_for = "fluffy numbers (gamma{" + std::to_string(gamma_bound) + "})";
+  if (gamma_bound) searching_for += "gamma{" + std::to_string(gamma_bound) + "}";
+  if (searching_for.substr(searching_for.length() - 1) == "(") {
+    searching_for += "all";
   }
-  else{
-    searching_for = "fluffy numbers (all)";
-  }
+  searching_for += ")";
 
   unsigned long interval = (unsigned long)((upper_limit - lower_limit) / 50.0);
 
-  std::cout << std::endl << "Configuration complete. Press Enter to begin searching...";
-  std::cin.get();
-
   std::ofstream file;
   file.open(file_string);
-  file << "The Fluffy Forager, v5" << std::flush;
+  file << "The Fluffy Forager, v5" << std::endl << std::flush;
 
-  std::cout << std::endl << "Search criteria: " << searching_for << "; "
-      << "limits: " << lower_limit << " <= x <= " << upper_limit << std::endl;
-  file << std::endl << "Search criteria: " << searching_for << "; "
-      << "limits: " << lower_limit << " <= x <= " << upper_limit << std::endl << std::flush;
+  std::cout << "Search criteria: " << searching_for << "; "
+      << "limits: " << lower_limit << " <= # <= " << upper_limit << std::endl;
+  file << "Search criteria: " << searching_for << "; "
+      << "limits: " << lower_limit << " <= # <= " << upper_limit << std::endl << std::flush;
   if (interval > 30) {
     show_progress_bar = true;
   }
@@ -176,10 +103,7 @@ int main(int argc, char* argv[]) {
     std::cout << " 0% |" << pbar << "| 100%" << std::endl;
     std::cout << "    |";
   }
-  else {
-    std::cout << "**PLEASE WAIT - SEARCH IN PROGRESS**" << std::endl;
-  }
-  file << std::endl << "      #|  dvs|     a|     b|     c|   sum|"
+  file << std::endl << "      #|  dvs|      |      |      |   sum|"
       << std::endl << std::endl << std::flush;
 
   clock_t start = clock ();
@@ -222,15 +146,13 @@ int main(int argc, char* argv[]) {
     }
   }
   if (show_progress_bar) {
-    std::cout << "!";
+    std::cout << "!" << std::endl;
   }
   clock_t elapsed_time = ( clock() - start ) / CLOCKS_PER_SEC;
-  std::cout << std::endl << "Search completed in "
+  std::cout << "Search completed in "
       << std::to_string(elapsed_time) << " seconds. "
       << std::to_string(count) << " " << searching_for << " found." << std::endl
-      << "Results have been saved to output.txt. "
-      << "If you are using Terminal," << std::endl
-      << "you may type \"cat output.txt\" to view the results." << std::endl;
+      << "Results have been saved to " << file_string << "." << std::endl;
   file << std::endl << "Search completed in " << std::to_string(elapsed_time) << " seconds. "
       << std::to_string(count) << " " << searching_for << " found." << std::endl;
 

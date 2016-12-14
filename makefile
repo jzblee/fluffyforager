@@ -1,6 +1,6 @@
 # Declaration of variables
-CC       = g++
-CC_FLAGS   = -Wall -g -m32
+CC       = clang++
+CC_FLAGS   = -Wall
 
 # File names
 EXEC = fluffyforager
