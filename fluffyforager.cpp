@@ -12,7 +12,7 @@ unsigned long c;
 unsigned long sum;
 } ;
 
-std::vector< triple> * check(unsigned long fluffy_number);
+std::vector< triple> * check(unsigned long candidate);
 
 int count = 0, num_divisors = 0;
 unsigned long gamma_bound = 0;
@@ -63,6 +63,13 @@ int main(int argc, char* argv[]) {
   if (argc - optind >= 2) {
     lower_limit = atol(argv[optind]);
     upper_limit = atol(argv[optind + 1]);
+  }
+  if (argc > optind + 2) {
+    std::cout << argv[0] << ": ignoring extra arguments:";
+    for (int i = optind + 2; i < argc; i++) {
+      std::cout << " " << argv[i];
+    }
+    std::cout << std::endl;
   }
 
   std::string searching_for = "fluffy numbers (";
@@ -148,25 +155,32 @@ int main(int argc, char* argv[]) {
   if (show_progress_bar) {
     std::cout << "!" << std::endl;
   }
+  std::string plural = count == 1 ? "" : "s";
   clock_t elapsed_time = ( clock() - start ) / CLOCKS_PER_SEC;
-  std::cout << "Search completed in "
-      << std::to_string(elapsed_time) << " seconds. "
-      << std::to_string(count) << " " << searching_for << " found." << std::endl
-      << "Results have been saved to " << file_string << "." << std::endl;
-  file << std::endl << "Search completed in " << std::to_string(elapsed_time) << " seconds. "
-      << std::to_string(count) << " " << searching_for << " found." << std::endl;
+  std::cout << "Completed." << std::endl
+      << std::to_string(elapsed_time) << " seconds elapsed. "
+      << std::to_string(count) << " result" <<  plural << " saved to "
+      << file_string << "." << std::endl;
+  file << std::endl << std::to_string(elapsed_time) << " seconds elapsed. "
+      << std::to_string(count) << " result" <<  plural << "." << std::endl;
 
   file.close();
   return 0;
 }
 
-std::vector< triple> * check(unsigned long fluffy_number) {
-  if (fluffy_number == 0) {
+std::vector< triple> * check(unsigned long candidate) {
+  if (candidate == 0) {
     return NULL;
   }
 
-  std::vector<unsigned long> divisors = factorization::deduce_divisors(fluffy_number);
+  std::vector<unsigned long> divisors = factorization::deduce_divisors(candidate);
   num_divisors = divisors.size();
+  // the first element of a triple must be equal to or less than the cube root of the candidate
+  // the second must be equal to or less than the square root of the candidate over the first element
+  // limits:
+  // 1: 1 <= a <= cubeR(cand)
+  // 2: 1 <= b <= sqR(cand / a)
+  // 3: cubeR(cand) <= c <= cand
 
   if (num_divisors < 4) {
     return NULL;
@@ -175,17 +189,33 @@ std::vector< triple> * check(unsigned long fluffy_number) {
   std::vector<triple> * matches = new std::vector< triple>();
   std::vector<triple> * valid_matches = new std::vector< triple>();
 
+  int cube_root_index, square_root_index;
+
+  cube_root_index = square_root_index = 0;
+
+  while (divisors[cube_root_index] <= pow(candidate, (1.0 / 3.0))) {
+    cube_root_index++;
+  }
+  square_root_index = cube_root_index;
+  while (divisors[square_root_index] <= pow(candidate, (0.5))) {
+    square_root_index++;
+  }
+
   bool flag = false; // following code could use some more optimization
-  for (int i = 0; i < divisors.size(); i++) {
+  for (int i = 0; i < cube_root_index; i++) {
     unsigned long a = divisors[i];
-    for (int j = i; j < divisors.size(); j++) {
+    int j_cutoff = pow(candidate / a, 0.5);
+    for (int j = i; j < square_root_index; j++) {
       unsigned long b = divisors[j];
+      if (divisors[j] > j_cutoff) {
+        break;
+      }
       for (int k = j; k < divisors.size(); k++) {
         unsigned long c = divisors[k];
-        if (a * b * c > fluffy_number) {
+        if (a * b * c > candidate) {
           break;
         }
-        if ((a * b * c == fluffy_number)) {
+        if ((a * b * c == candidate)) {
            triple new_triple = {a, b, c, a + b + c};
           matches -> push_back(new_triple);
           break;
