@@ -6,11 +6,8 @@
 #include "factorization.h"
 
 struct triple {
-unsigned long a;
-unsigned long b;
-unsigned long c;
-unsigned long sum;
-} ;
+  unsigned long a, b, c, sum;
+};
 
 std::vector< triple> * check(unsigned long candidate);
 
@@ -25,15 +22,16 @@ int main(int argc, char* argv[]) {
   bool show_progress_bar = false;
 
   std::string usage = "usage:\t" + std::string(argv[0]) + " [-p] [-g <bound>] lower-limit upper-limit\n"
-  "\tsearch for pairs of triples of the form (a,a,b), (x,y,z)\n"
-  "\twhere:\ta + a + b = x + y + z\n"
-  "\t\ta + a + b and x + y + z are within the lower and upper limits\n"
-  "\tp: only search for pure triple pairs, where y = z \n"
+  "\tsearch for pairs of triples of the form (a,b,b), (x,y,z)\n"
+  "\twhere:\ta + b + b = x + y + z\n"
+  "\t\ta + b + b and x + y + z are within the lower and upper limits\n"
+  "\tp: only search for pure triple pairs, where x = y \n"
   "\tg: only search for triple pairs where a + a + b = x + y + z <= bound\n";
 
-  if (argc == 1) {
+  if (argc < 3) {
+    std::cout << argv[0] << ": not enough arguments" << std::endl;
     std::cout << usage;
-    return 0;
+    return -1;
   }
 
   int c;
@@ -169,7 +167,7 @@ int main(int argc, char* argv[]) {
 }
 
 std::vector< triple> * check(unsigned long candidate) {
-  if (candidate == 0) {
+  if (!candidate) {
     return NULL;
   }
 
@@ -186,8 +184,8 @@ std::vector< triple> * check(unsigned long candidate) {
     return NULL;
   }
 
-  std::vector<triple> * matches = new std::vector< triple>();
-  std::vector<triple> * valid_matches = new std::vector< triple>();
+  std::vector<triple> matches;
+  std::vector<triple> valid_matches;
 
   int cube_root_index, square_root_index;
 
@@ -201,7 +199,6 @@ std::vector< triple> * check(unsigned long candidate) {
     square_root_index++;
   }
 
-  bool flag = false; // following code could use some more optimization
   for (int i = 0; i < cube_root_index; i++) {
     unsigned long a = divisors[i];
     int j_cutoff = pow(candidate / a, 0.5);
@@ -217,83 +214,43 @@ std::vector< triple> * check(unsigned long candidate) {
         }
         if ((a * b * c == candidate)) {
            triple new_triple = {a, b, c, a + b + c};
-          matches -> push_back(new_triple);
+          matches.push_back(new_triple);
           break;
         }
       }
     }
   }
-  flag = false;
-  for (int i = 0; i < matches->size(); i++) {
-    for (int j = 0; j < matches->size(); j++) {
-      if ((i != j)
-          && (((*matches)[i].sum == (*matches)[j].sum)
-              && ((*matches)[i].a != (*matches)[j].a)
-              && (*matches)[i].b != (*matches)[j].b)) {
-        valid_matches -> push_back((*matches)[i]);
+  bool flag = false;
+  for (int i = 0; i < matches.size(); i++) {
+    for (int j = i + 1; j < matches.size(); j++) {
+      if (matches[i].sum == matches[j].sum) {
+        if (flag) return NULL;
+        valid_matches.push_back(matches[i]);
+        valid_matches.push_back(matches[j]);
         flag = true;
       }
     }
   }
-  delete matches;
-  if (flag) {
-    if (valid_matches -> size() == 2) {
-      bool keep_sorting = true;
-      while (keep_sorting) {
-        keep_sorting = false;
-        int i = 0;
-        while (i < valid_matches -> size() - 1) {
-          if ((*valid_matches)[i].sum > (*valid_matches)[i + 1].sum) {
-             triple temp = (*valid_matches)[i];
-            (*valid_matches)[i] = (*valid_matches)[i + 1];
-            (*valid_matches)[i + 1] = temp;
-            keep_sorting = true;
-            i++;
-          }
-          else if ((*valid_matches)[i].a == (*valid_matches)[i + 1].a) {
-            valid_matches -> erase(valid_matches -> begin() + i - 1);
-          }
-          else {
-            i++;
-          }
-        }
-      }
-      if (gamma_bound != 0) {
-        if ((*valid_matches)[0].a > gamma_bound
-            || (*valid_matches)[0].b > gamma_bound
-            || (*valid_matches)[0].c > gamma_bound
-            || (*valid_matches)[1].a > gamma_bound
-            || (*valid_matches)[1].b > gamma_bound
-            || (*valid_matches)[1].c > gamma_bound) {
-          delete valid_matches;
-          return NULL;
-        }
-      }
-      if (!pure_only && ((*valid_matches)[0].b == (*valid_matches)[0].c
-          && (*valid_matches)[1].a != (*valid_matches)[1].b)) {
-        count++;
-        return valid_matches;
-      }
-      else if (((*valid_matches)[0].b == (*valid_matches)[0].c
-          && (*valid_matches)[1].a == (*valid_matches)[1].b)) {
-        count++;
-        return valid_matches;
-      }
-      else {
-        delete valid_matches;
-        return NULL;
-      }
-    }
-    else {
-      delete valid_matches;
+  if (!valid_matches.size()) return NULL;
+  if (gamma_bound) {
+    if (   valid_matches[0].a > gamma_bound
+        || valid_matches[1].a > gamma_bound
+        || valid_matches[0].b > gamma_bound
+        || valid_matches[1].b > gamma_bound
+        || valid_matches[0].c > gamma_bound
+        || valid_matches[1].c > gamma_bound) {
       return NULL;
     }
   }
-  else {
-    delete valid_matches;
-    return NULL;
+  if (!pure_only && (valid_matches[0].b == valid_matches[0].c
+      && valid_matches[1].a != valid_matches[1].b)) {
+    count++;
+    return new std::vector<triple>(valid_matches);
   }
-
-  delete valid_matches;
+  else if (valid_matches[0].b == valid_matches[0].c
+      && valid_matches[1].a == valid_matches[1].b) {
+    count++;
+    return new std::vector<triple>(valid_matches);
+  }
   return NULL;
 }
