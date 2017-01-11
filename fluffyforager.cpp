@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
   "\twhere:\ta + b + b = x + y + z\n"
   "\t\ta + b + b and x + y + z are within the lower and upper limits\n"
   "\tp: only search for pure triple pairs, where x = y \n"
-  "\tg: only search for triple pairs where a + a + b = x + y + z <= bound\n";
+  "\tg: only search for triple pairs where a + b + b = x + y + z <= bound\n";
 
   if (argc < 3) {
     std::cout << argv[0] << ": not enough arguments" << std::endl;
